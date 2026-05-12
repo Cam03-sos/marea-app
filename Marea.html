@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Marea | Moda y Estilo</title>
+    
+    <link rel="icon" type="image/png" href="Imagenes/Marea.png">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    
+    <style>
+        /* ANIMACIÓN DE INICIO */
+        @keyframes aparecerSuave {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-animado {
+            animation: aparecerSuave 1.2s ease-out forwards;
+        }
+
+        /* ESTILOS BASE */
+        body {
+            font-family: Arial, sans-serif; /* Fuentes seguras */
+            background-color: #f4f4f9;
+            margin: 0; 
+            padding: 0;
+            color: #333333; 
+        }
+        
+        .pantalla {
+            width: 100%;
+            max-width: 1200px; 
+            min-height: 100vh; 
+            margin: 0 auto; 
+            background-color: #ffffff;
+            padding: 20px;
+            box-sizing: border-box;
+            box-shadow: 0px 0px 15px rgba(0,0,0,0.05);
+        }
+
+        .oculto {
+            display: none !important;
+        }
+
+        /* GRID PARA CATÁLOGO */
+        .grid-productos {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* ESTILOS INTERACTIVOS */
+        .tarjeta {
+            background-color: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s; 
+            border: 1px solid transparent;
+        }
+
+        .tarjeta:hover, .tarjeta:focus {
+            transform: scale(1.02);
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            outline: 2px solid #000000; /* Indicador de foco para teclado */
+        }
+
+        .btn-principal {
+            width: 100%;
+            background-color: #000000;
+            color: #ffffff;
+            padding: 15px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-principal:hover, .btn-principal:focus {
+            background-color: #444444;
+            outline: 2px dashed #000;
+            outline-offset: 2px;
+        }
+
+        .pantalla-centrada {
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center;
+        }
+
+        .contenedor-centrado {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* FORMULARIOS */
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: left;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+            border: 1px solid #767676; /* Contraste AA */
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        input:focus, select:focus {
+            outline: 2px solid #000000;
+            border-color: #000000;
+        }
+
+        /* MEDIA QUERIES */
+        @media (min-width: 768px) {
+            .grid-productos {
+                grid-template-columns: 1fr 1fr 1fr 1fr; 
+                gap: 25px;
+            }
+            .pantalla { padding: 40px; }
+            .imagen-producto-escritorio {
+                max-width: 400px;
+                margin: 0 auto;
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <main>
+        <section class="pantalla pantalla-centrada" id="pantalla-inicio">
+            <div style="text-align: center;" class="logo-animado">
+                <img src="Imagenes/Marea.png" alt="Logotipo principal de Marea" style="width: 200px;">
+                <button class="btn-principal" onclick="navegar('pantalla-catalogo')" aria-label="Ingresar al catálogo de productos" style="margin-top: 30px; width: auto; padding: 15px 30px;">
+                    Entrar a la Tienda
+                </button>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-catalogo">
+            <nav style="border-bottom: 1px solid #ccc; padding-bottom: 10px; display: flex; justify-content: space-between;" aria-label="Navegación principal">
+                <strong style="font-size: 20px;">MAREA</strong>
+                <span>Menú | Buscar</span>
+            </nav>
+            <div class="grid-productos" role="list" aria-label="Lista de productos">
+                
+                <div class="tarjeta" role="button" tabindex="0" onclick="navegar('pantalla-producto')" onkeydown="if(event.key==='Enter') navegar('pantalla-producto')" aria-label="Ver detalles de Falda Estampada">
+                    <img src="Imagenes/Falda.png" alt="Fotografía de Falda Estampada" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;">
+                    <p style="margin: 0;">Falda Estampada</p>
+                    <strong>$599.00</strong>
+                </div>
+
+                <div class="tarjeta" role="button" tabindex="0" onclick="navegar('pantalla-producto')" onkeydown="if(event.key==='Enter') navegar('pantalla-producto')" aria-label="Ver detalles de Top">
+                    <img src="Imagenes/Top.png" alt="Fotografía de Top" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;">
+                    <p style="margin: 0;">Top</p>
+                    <strong>$350.00</strong>
+                </div>
+
+                <div class="tarjeta" role="button" tabindex="0" onclick="navegar('pantalla-producto')" onkeydown="if(event.key==='Enter') navegar('pantalla-producto')" aria-label="Ver detalles de Blusa">
+                    <img src="Imagenes/Blusa.png" alt="Fotografía de Blusa" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;">
+                    <p style="margin: 0;">Blusa</p>
+                    <strong>$420.00</strong>
+                </div>
+
+                <div class="tarjeta" role="button" tabindex="0" onclick="navegar('pantalla-producto')" onkeydown="if(event.key==='Enter') navegar('pantalla-producto')" aria-label="Ver detalles de Suéter">
+                    <img src="Imagenes/Sueter.png" alt="Fotografía de Suéter" loading="lazy" style="width: 100%; height: 250px; object-fit: cover; border-radius: 5px; margin-bottom: 10px;">
+                    <p style="margin: 0;">Suéter</p>
+                    <strong>$680.00</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-producto">
+            <button class="btn-secundario" onclick="navegar('pantalla-catalogo')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;" aria-label="Regresar al catálogo">← Volver al catálogo</button>
+            
+            <div class="contenedor-centrado">
+                <img src="Imagenes/Falda.png" alt="Vista frontal de Falda Estampada" class="imagen-producto-escritorio" style="width: 100%; height: 400px; object-fit: cover; border-radius: 5px;">
+                
+                <h2 style="margin-top: 30px; text-align: center;">Falda Estampada</h2>
+                <p style="font-size: 24px; font-weight: bold; margin: 10px 0; text-align: center;">$599.00</p>
+                
+                <div style="margin-top: 20px; display: flex; justify-content: space-between; gap: 20px;">
+                    <div style="width: 100%;">
+                        <label for="select-talla">Talla:</label>
+                        <select id="select-talla"><option>S</option><option>M</option><option>L</option></select>
+                    </div>
+                    <div style="width: 100%;">
+                        <label for="select-color">Color:</label>
+                        <select id="select-color"><option>Único</option></select>
+                    </div>
+                </div>
+
+                <button class="btn-principal" onclick="navegar('pantalla-carrito')">Agregar al Carrito</button>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-carrito">
+            <button onclick="navegar('pantalla-producto')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;" aria-label="Regresar al producto">← Volver</button>
+            
+            <div class="contenedor-centrado">
+                <h2>Tu Carrito</h2>
+                <div style="display: flex; align-items: center; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+                    <img src="Imagenes/Falda.png" alt="Falda Estampada" style="width: 80px; height: 100px; object-fit: cover; border-radius: 5px; margin-right: 20px;">
+                    <div>
+                        <strong style="font-size: 18px;">Falda Estampada</strong>
+                        <p style="margin: 5px 0; color: #555;">Talla: M | Color: Único</p>
+                        <p style="margin: 0; font-size: 18px; font-weight: bold;">$599.00</p>
+                    </div>
+                </div>
+                <button class="btn-principal" onclick="navegar('pantalla-checkout')">Proceder al Pago</button>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-checkout">
+            <button onclick="navegar('pantalla-carrito')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;" aria-label="Regresar al carrito">← Volver al carrito</button>
+            
+            <div class="contenedor-centrado">
+                <h2>Checkout seguro</h2>
+                <form onsubmit="event.preventDefault(); navegar('pantalla-historial');">
+                    <fieldset style="border: none; padding: 0; margin-bottom: 20px;">
+                        <legend style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Dirección de Envío</legend>
+                        
+                        <label for="direccion">Calle y número</label>
+                        <input type="text" id="direccion" placeholder="Ej. Av. Reforma 123" required>
+                        
+                        <label for="cp">Código Postal</label>
+                        <input type="text" id="cp" placeholder="Ej. 72000" required>
+                    </fieldset>
+                    
+                    <fieldset style="border: none; padding: 0; margin-bottom: 20px;">
+                        <legend style="font-size: 18px; font-weight: bold; margin-bottom: 10px;">Método de Pago</legend>
+                        
+                        <label for="tarjeta">Número de Tarjeta</label>
+                        <input type="text" id="tarjeta" placeholder="0000 0000 0000 0000" required>
+                        
+                        <div style="display: flex; gap: 10px;">
+                            <div style="width: 50%;">
+                                <label for="fecha">Vencimiento</label>
+                                <input type="text" id="fecha" placeholder="MM/AA" required>
+                            </div>
+                            <div style="width: 50%;">
+                                <label for="cvc">CVC</label>
+                                <input type="text" id="cvc" placeholder="123" required>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" class="btn-principal">Confirmar y Pagar</button>
+                </form>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-historial">
+            <button onclick="navegar('pantalla-catalogo')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;">← Ir al Catálogo</button>
+            
+            <div class="contenedor-centrado">
+                <h2>Mi Perfil</h2>
+                
+                <div style="text-align: center; margin-bottom: 30px; background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                    <h3 style="margin-top: 0;">Puntos de Lealtad</h3>
+                    <canvas id="graficoMarea" width="280" height="60" aria-label="Gráfico que muestra nivel Plata, faltan 100 puntos para Oro" style="max-width: 100%;"></canvas>
+                </div>
+
+                <ul style="list-style-type: none; padding: 0; font-size: 18px;">
+                    <li role="button" tabindex="0" onclick="navegar('pantalla-pedidos')" onkeydown="if(event.key==='Enter') navegar('pantalla-pedidos')" style="padding: 20px 0; border-bottom: 1px solid #eee; cursor: pointer;">
+                        📦 Mis Pedidos
+                    </li>
+                    
+                    <li role="button" tabindex="0" onclick="abrirMapaYGeolocalizar()" onkeydown="if(event.key==='Enter') abrirMapaYGeolocalizar()" style="padding: 20px 0; border-bottom: 1px solid #eee; cursor: pointer; font-weight: bold; color: #000;">
+                        📍 Buscar Tiendas Cercanas (GPS)
+                    </li>
+                    
+                    <li role="button" tabindex="0" onclick="navegar('pantalla-pagos')" onkeydown="if(event.key==='Enter') navegar('pantalla-pagos')" style="padding: 20px 0; border-bottom: 1px solid #eee; cursor: pointer;">
+                        💳 Métodos de Pago Guardados
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-pedidos">
+            <button onclick="navegar('pantalla-historial')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;">← Volver al perfil</button>
+            
+            <div class="contenedor-centrado">
+                <h2>Historial de Pedidos</h2>
+                
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="font-size: 18px;">Pedido #00128</strong>
+                        <span style="background-color: #d4edda; color: #155724; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Entregado</span>
+                    </div>
+                    <p style="margin: 5px 0; color: #555;">Fecha: 10 de Mayo, 2026</p>
+                    <p style="margin: 5px 0; color: #555;">Total: <strong>$599.00</strong></p>
+                </div>
+
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #eee;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="font-size: 18px;">Pedido #00132</strong>
+                        <span style="background-color: #cce5ff; color: #004085; padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">En camino</span>
+                    </div>
+                    <p style="margin: 5px 0; color: #555;">Fecha: 12 de Mayo, 2026</p>
+                    <p style="margin: 5px 0; color: #555;">Total: <strong>$1,379.00</strong></p>
+                </div>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-pagos">
+            <button onclick="navegar('pantalla-historial')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;">← Volver al perfil</button>
+            
+            <div class="contenedor-centrado">
+                <h2>Mis Tarjetas</h2>
+                
+                <div style="background-color: #111; color: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);">
+                    <div>
+                        <p style="margin: 0 0 10px 0; font-size: 14px; opacity: 0.8;">Tarjeta de Débito</p>
+                        <strong style="font-size: 20px; letter-spacing: 2px;">**** **** **** 4242</strong>
+                        <p style="margin: 15px 0 0 0; font-size: 14px; opacity: 0.8;">Exp: 12/28</p>
+                    </div>
+                    <div style="font-size: 28px; font-style: italic; font-weight: bold;">VISA</div>
+                </div>
+
+                <button class="btn-principal" style="background-color: transparent; color: #000; border: 2px dashed #000; outline: none; margin-top: 10px;">
+                    + Añadir un nuevo método de pago
+                </button>
+            </div>
+        </section>
+
+        <section class="pantalla oculto" id="pantalla-mapa">
+            <button onclick="navegar('pantalla-historial')" style="margin-bottom: 20px; cursor: pointer; background: none; border: none; font-size: 16px; font-weight: bold; padding: 10px;">← Volver al perfil</button>
+            
+            <div class="contenedor-centrado" style="max-width: 800px;">
+                <h2>Tiendas Marea</h2>
+                <p id="texto-ubicacion" aria-live="polite" style="font-size: 16px; color: #333; background: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 4px solid #000;">
+                    Buscando tu ubicación actual...
+                </p>
+                
+                <div id="miMapa" aria-label="Mapa interactivo con sucursales Marea" style="width: 100%; height: 400px; background-color: #dee2e6; border-radius: 5px; margin-bottom: 20px; z-index: 1;"></div>
+                
+                <div id="detalles-tienda" aria-live="polite" style="background-color: #f8f9fa; padding: 20px; border-radius: 5px; border: 1px solid #eee;">
+                    <p style="margin: 0; font-size: 16px;"><strong>Toca un marcador en el mapa</strong> para ver los detalles de las boutiques Marea cercanas a ti.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function navegar(idDestino) {
+            const pantallas = document.querySelectorAll('.pantalla');
+            pantallas.forEach(pantalla => {
+                pantalla.classList.add('oculto');
+                pantalla.setAttribute('aria-hidden', 'true');
+            });
+
+            const pantallaMostrar = document.getElementById(idDestino);
+            if (pantallaMostrar) {
+                pantallaMostrar.classList.remove('oculto');
+                pantallaMostrar.removeAttribute('aria-hidden');
+            }
+            window.scrollTo(0, 0);
+
+            if(idDestino === 'pantalla-mapa' && mapaInteractivo) {
+                setTimeout(() => { mapaInteractivo.invalidateSize(); }, 100);
+            }
+        }
+
+        // Renderizado del Canvas
+        var canvas = document.getElementById("graficoMarea");
+        if(canvas) {
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#e9ecef"; 
+            ctx.fillRect(0, 20, 280, 15); 
+            ctx.fillStyle = "#000000";
+            ctx.fillRect(0, 20, 180, 15); 
+            ctx.fillStyle = "#000000";
+            ctx.font = "bold 14px Arial";
+            ctx.fillText("Nivel Plata: Faltan 100 pts para Oro", 0, 12);
+        }
+
+        // Geolocalización 
+        let mapaInicializado = false;
+        let mapaInteractivo;
+
+        function abrirMapaYGeolocalizar() {
+            navegar('pantalla-mapa'); 
+            if (!mapaInicializado) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(mostrarUbicacionYMapa, manejarErrorGeolocalizacion);
+                } else {
+                    document.getElementById("texto-ubicacion").innerHTML = "Tu navegador no soporta geolocalización HTML5.";
+                }
+            }
+        }
+
+        function mostrarUbicacionYMapa(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            document.getElementById("texto-ubicacion").innerHTML = `📍 Ubicación detectada. Mostrando sucursales cercanas.`;
+
+            mapaInteractivo = L.map('miMapa').setView([lat, lon], 14);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap'
+            }).addTo(mapaInteractivo);
+
+            L.marker([lat, lon]).addTo(mapaInteractivo).bindPopup("<b>Tú estás aquí</b>").openPopup();
+
+            const puntosDeInteres = [
+                { nombre: "Boutique Marea Norte", latitud: lat + 0.005, longitud: lon + 0.005, descripcion: "Nueva colección de verano disponible.", horario: "10:00 - 20:00" },
+                { nombre: "Marea Outlet Centro", latitud: lat - 0.006, longitud: lon - 0.003, descripcion: "Descuentos hasta del 40%.", horario: "11:00 - 21:00" },
+            ];
+
+            const contenedorDetalles = document.getElementById("detalles-tienda");
+
+            puntosDeInteres.forEach(lugar => {
+                const marcador = L.marker([lugar.latitud, lugar.longitud]).addTo(mapaInteractivo);
+                marcador.bindPopup(`<b>${lugar.nombre}</b>`);
+                marcador.on('click', function() {
+                    contenedorDetalles.innerHTML = `
+                        <h3 style="margin-top: 0; font-size: 20px;">${lugar.nombre}</h3>
+                        <p style="margin: 5px 0;">${lugar.descripcion}</p>
+                        <p style="margin: 5px 0; font-weight:bold;">🕒 ${lugar.horario}</p>
+                    `;
+                });
+            });
+            mapaInicializado = true;
+        }
+            
+        function manejarErrorGeolocalizacion(error) {
+            const texto = document.getElementById("texto-ubicacion");
+            if(error.code === error.PERMISSION_DENIED) texto.innerHTML = "❌ Permiso de ubicación denegado.";
+            else texto.innerHTML = "⚠️ No se pudo obtener la ubicación.";
+        }
+    </script>
+</body>
+</html>
